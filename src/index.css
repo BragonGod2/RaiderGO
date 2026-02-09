@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #1E90FF;
+  --primary-rgb: 30, 144, 255;
+  --secondary: #00BFFF;
+  --secondary-rgb: 0, 191, 255;
+  --accent: #4169E1;
+  --accent-rgb: 65, 105, 225;
+
+  --bg-primary: #0A0E1A;
+  --bg-secondary: #0F1420;
+  --bg-tertiary: #1A1F2E;
+
+  --text-primary: #E8F0FF;
+  --text-secondary: #A8B5CC;
+  --text-muted: #6B7A99;
+
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.4);
+
+  --glow-primary: 0 0 20px rgba(30, 144, 255, 0.3);
+  --glow-secondary: 0 0 20px rgba(0, 191, 255, 0.3);
+  --glow-accent: 0 0 20px rgba(65, 105, 225, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+}
+
+@layer utilities {
+  .glass-morphism {
+    background: rgba(15, 20, 32, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-card {
+    background: rgba(26, 31, 46, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(168, 181, 204, 0.1);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-fast {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl), var(--glow-primary);
+  }
+
+  .btn-glow {
+    box-shadow: 0 4px 16px rgba(var(--primary-rgb), 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.5);
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  .section-spacing {
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
+
+  .card-spacing {
+    padding: 32px;
+  }
+
+  .gap-standard {
+    gap: 16px;
+  }
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg,
+      rgba(26, 31, 46, 0.6) 25%,
+      rgba(168, 181, 204, 0.1) 50%,
+      rgba(26, 31, 46, 0.6) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--primary-rgb), 0.5);
+}
+
+/* Prose styles for rich text editor */
+.prose {
+  color: var(--text-primary) !important;
+  line-height: 1.6 !important;
+}
+
+.prose h1 {
+  display: block !important;
+  font-size: 2.8rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+.prose h2 {
+  display: block !important;
+  font-size: 2rem !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.75rem !important;
+  color: #f1f5f9 !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+.prose h3 {
+  display: block !important;
+  font-size: 1.5rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  color: #e2e8f0 !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+.prose p {
+  margin-bottom: 1rem !important;
+  font-size: 1.1rem !important;
+}
+
+.prose ul,
+.prose ol {
+  margin-bottom: 1.5rem !important;
+  padding-left: 1.5rem !important;
+  display: block !important;
+}
+
+.prose ul {
+  list-style-type: disc !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+}
+
+.prose li {
+  margin-bottom: 0.5rem !important;
+  display: list-item !important;
+}
+
+.prose blockquote {
+  border-left: 4px solid var(--primary) !important;
+  padding-left: 1.5rem !important;
+  font-style: italic !important;
+  margin-bottom: 1.5rem !important;
+  color: var(--text-secondary) !important;
+}
+
+.prose hr {
+  border: none !important;
+  border-top: 2px solid rgba(255, 255, 255, 0.1) !important;
+  margin: 2rem 0 !important;
+}
+
+/* Ensure icons don't override each other and cursor stays visible */
+.prose img {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 4px !important;
+  border-radius: 4px !important;
+  max-width: none !important;
+}
+
+/* Global Dark Theme UI Fixes */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 1px var(--primary) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+}
+
+/* Exception for transparent inputs in editor */
+.bg-transparent {
+  background-color: transparent !important;
+}
