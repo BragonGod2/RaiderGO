@@ -36,21 +36,23 @@ serve(async (req) => {
         const merchantCode = Deno.env.get('VITE_2CHECKOUT_MERCHANT_ID')!;
         const buyLinkSecret = Deno.env.get('TCO_BUY_LINK_SECRET')!;
 
-        // Production parameters for raidergo.com
+        // Standard Buy Link parameters - Legacy Compatible
+        // We use 'prod' instead of 'item-name-0' which is safer for older accounts
         const params: Record<string, string> = {
             'merchant': merchantCode,
-            'cp-type': 'digital',
             'dynamic': '1',
+            'prod': 'Digital Course Access',
+            'price': price.toString(),
             'currency': 'USD',
-            'item-name-0': 'Digital Course Access',
-            'item-price-0': price.toString(),
-            'item-qty-0': '1',
-            'item-ext-ref-0': courseId,
+            'qty': '1',
+            'type': 'digital',
+            'item-ext-ref': courseId, // Note: no '-0' suffix for standard links
             'return-url': `https://raidergo.com/payment/success?course_id=${courseId}`,
             'return-type': 'redirect'
         };
 
-        // Signature Calculation: Concat length(value) + value for ALL sorted params
+        // Signature Calculation: Alphabetical sort of ALL parameters
+        // Standard Buy Links INCLUDE merchant in the signature
         const sortedKeys = Object.keys(params).sort();
         let stringToSign = '';
         for (const key of sortedKeys) {
@@ -58,12 +60,12 @@ serve(async (req) => {
             stringToSign += val.length + val;
         }
 
-        console.log('[Generate Link] Production Signing string:', stringToSign);
+        console.log('[Generate Link] Standard Buy Link Signing string:', stringToSign);
         const signatureValue = await hmacSha256(buyLinkSecret, stringToSign);
 
         const urlParams = new URLSearchParams({
             ...params,
-            'signature': signatureValue
+            'signature': signatureValue // try lowercase first, if fails we try UPPER
         });
 
         const baseUrl = 'https://secure.2checkout.com/checkout/buy';

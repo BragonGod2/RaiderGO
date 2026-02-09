@@ -73,7 +73,7 @@ export const VerifonePaymentModal = ({ isOpen, onClose, courseId, price, title }
                         <Button
                             onClick={handleCheckout}
                             disabled={loading}
-                            className="w-full bg-primary hover:bg-opacity-90 text-white py-6 text-lg font-bold btn-glow"
+                            className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black py-6 text-lg font-bold btn-glow shadow-lg shadow-yellow-500/20 transition-all duration-300"
                         >
                             {loading ? (
                                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
