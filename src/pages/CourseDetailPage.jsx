@@ -567,11 +567,7 @@ const CourseDetailPage = () => {
                           ))}
                       </ul>
                     )}
-                    {!isEditMode && (
-                      <Button onClick={handleBuyOrContinue} className="w-full mt-6 bg-[#ffc439] hover:bg-[#f2ba36] text-[#003087] font-bold text-lg py-6 btn-glow shadow-xl hover:scale-[1.02] transition-all">
-                        {isPurchased ? 'Continue Learning' : 'Buy Now'}
-                      </Button>
-                    )}
+
                   </div>
                 </div>
               </div>
