@@ -39,30 +39,43 @@ serve(async (req) => {
         // Create a combined reference if we have a user ID
         const refId = userId ? `${userId}|${courseId}` : courseId;
 
-        // Legacy 2Checkout Host (Standard/Classic)
-        // This bypasses the strict signature requirements of ConvertPlus
+        const genericProductId = Deno.env.get('VITE_VERIFONE_GENERIC_PRODUCT_ID') || '53019736';
+
+        // PURE CATALOG LINK TEST
+        // We remove all dynamic overrides (price, description) to test if the product ID is valid
         const params: Record<string, string> = {
-            'sid': merchantCode,
-            'mode': '2CO',
-            'li_0_type': 'product',
-            'li_0_name': 'Digital Course Access',
-            'li_0_price': price.toString(),
-            'li_0_quantity': '1',
-            'li_0_tangible': 'N',
-            'li_0_product_id': refId,
-            'x_receipt_link_url': `https://raidergo.com/payment/success?course_id=${courseId}`,
+            'merchant': merchantCode,
+            'prod': genericProductId,
+            'qty': '1',
+            'type': 'digital',
+            'currency': 'USD',
+            'ref': refId,
+            'return-url': `https://raidergo.com/payment/success?course_id=${courseId}`,
+            'return-type': 'redirect'
         };
 
-        const urlParams = new URLSearchParams(params);
+        // Signature Calculation:
+        // 1. Sort ALL parameters alphabetically
+        // 2. Concatenate length + value
+        const sortedKeys = Object.keys(params).sort();
+        let stringToSign = '';
+        for (const key of sortedKeys) {
+            const val = params[key];
+            stringToSign += val.length + val;
+        }
 
-        // Note: Legacy checkout usually works without signature if "Parameter Protection" 
-        // is not strictly enforced. If it is, we would need MD5 (not HMAC).
-        // Let's try the direct link first.
+        console.log('[Generate Link] Pure Catalog Signing string:', stringToSign);
+        const signatureValue = await hmacSha256(buyLinkSecret, stringToSign);
 
-        const baseUrl = 'https://www.2checkout.com/checkout/purchase';
+        const urlParams = new URLSearchParams({
+            ...params,
+            'signature': signatureValue
+        });
+
+        const baseUrl = 'https://secure.2checkout.com/checkout/buy';
         const checkoutUrl = `${baseUrl}?${urlParams.toString()}`;
 
-        console.log('[Generate Link] Generated Legacy URL:', checkoutUrl);
+        console.log('[Generate Link] Generated ConvertPlus URL:', checkoutUrl);
 
         return new Response(JSON.stringify({ url: checkoutUrl }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },

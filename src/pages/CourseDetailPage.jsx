@@ -12,7 +12,7 @@ import { useCourseEditor } from '@/hooks/useCourseEditor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 
-import { VerifonePaymentModal } from '@/components/VerifonePaymentModal';
+import { PayPalPaymentModal } from '@/components/PayPalPaymentModal';
 
 const CourseDetailPage = () => {
   const { id } = useParams();
@@ -577,7 +577,7 @@ const CourseDetailPage = () => {
       </div>
 
 
-      <VerifonePaymentModal
+      <PayPalPaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         courseId={id}
