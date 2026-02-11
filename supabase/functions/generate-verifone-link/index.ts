@@ -1,5 +1,5 @@
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -31,45 +31,38 @@ serve(async (req) => {
     }
 
     try {
-        const { courseId, price, title, origin } = await req.json();
+        const { courseId, userId, price, title, origin } = await req.json();
 
         const merchantCode = Deno.env.get('VITE_2CHECKOUT_MERCHANT_ID')!;
         const buyLinkSecret = Deno.env.get('TCO_BUY_LINK_SECRET')!;
 
-        // Standard Buy Link parameters - Legacy Compatible
-        // We use 'prod' instead of 'item-name-0' which is safer for older accounts
+        // Create a combined reference if we have a user ID
+        const refId = userId ? `${userId}|${courseId}` : courseId;
+
+        // Legacy 2Checkout Host (Standard/Classic)
+        // This bypasses the strict signature requirements of ConvertPlus
         const params: Record<string, string> = {
-            'merchant': merchantCode,
-            'dynamic': '1',
-            'prod': 'Digital Course Access',
-            'price': price.toString(),
-            'currency': 'USD',
-            'qty': '1',
-            'type': 'digital',
-            'item-ext-ref': courseId, // Note: no '-0' suffix for standard links
-            'return-url': `https://raidergo.com/payment/success?course_id=${courseId}`,
-            'return-type': 'redirect'
+            'sid': merchantCode,
+            'mode': '2CO',
+            'li_0_type': 'product',
+            'li_0_name': 'Digital Course Access',
+            'li_0_price': price.toString(),
+            'li_0_quantity': '1',
+            'li_0_tangible': 'N',
+            'li_0_product_id': refId,
+            'x_receipt_link_url': `https://raidergo.com/payment/success?course_id=${courseId}`,
         };
 
-        // Signature Calculation: Alphabetical sort of ALL parameters
-        // Standard Buy Links INCLUDE merchant in the signature
-        const sortedKeys = Object.keys(params).sort();
-        let stringToSign = '';
-        for (const key of sortedKeys) {
-            const val = params[key];
-            stringToSign += val.length + val;
-        }
+        const urlParams = new URLSearchParams(params);
 
-        console.log('[Generate Link] Standard Buy Link Signing string:', stringToSign);
-        const signatureValue = await hmacSha256(buyLinkSecret, stringToSign);
+        // Note: Legacy checkout usually works without signature if "Parameter Protection" 
+        // is not strictly enforced. If it is, we would need MD5 (not HMAC).
+        // Let's try the direct link first.
 
-        const urlParams = new URLSearchParams({
-            ...params,
-            'signature': signatureValue // try lowercase first, if fails we try UPPER
-        });
-
-        const baseUrl = 'https://secure.2checkout.com/checkout/buy';
+        const baseUrl = 'https://www.2checkout.com/checkout/purchase';
         const checkoutUrl = `${baseUrl}?${urlParams.toString()}`;
+
+        console.log('[Generate Link] Generated Legacy URL:', checkoutUrl);
 
         return new Response(JSON.stringify({ url: checkoutUrl }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },

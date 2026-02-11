@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, CreditCard, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-export const VerifonePaymentModal = ({ isOpen, onClose, courseId, price, title }) => {
+export const VerifonePaymentModal = ({ isOpen, onClose, courseId, userId, price, title }) => {
     const [loading, setLoading] = useState(false);
 
     // Cache-busting log
@@ -25,6 +25,7 @@ export const VerifonePaymentModal = ({ isOpen, onClose, courseId, price, title }
             const { data, error } = await supabase.functions.invoke('generate-verifone-link', {
                 body: {
                     courseId,
+                    userId,
                     price,
                     title: "Digital Course Access", // Hardcoded safe title to avoid WAF blocks
                     origin: window.location.origin

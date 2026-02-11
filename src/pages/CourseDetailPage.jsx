@@ -567,7 +567,7 @@ const CourseDetailPage = () => {
                           ))}
                       </ul>
                     )}
-
+                    {/* Removed duplicate Buy button per user request */}
                   </div>
                 </div>
               </div>
@@ -581,6 +581,7 @@ const CourseDetailPage = () => {
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         courseId={id}
+        userId={currentUser?.id}
         price={course?.price}
         title={course?.title}
       />

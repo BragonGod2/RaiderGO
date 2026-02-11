@@ -1,5 +1,5 @@
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.30.0'
 
 const corsHeaders = {
@@ -50,25 +50,38 @@ serve(async (req) => {
             const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
             const supabase = createClient(supabaseUrl, supabaseKey);
 
-            // Parse externalReference (we sent courseId in the modal)
-            // Note: In the modal we sent courseId. We should also know which user bought it.
-            // A better practice is to send `userId|courseId` or a unique order ID.
-            const courseId = externalReference;
+            // Parse externalReference (userId|courseId or just courseId)
+            const externalReference = payload['EXTERNAL_REFERENCE'];
+            let courseId = externalReference;
+            let userId: string | null = null;
+
+            if (externalReference && externalReference.includes('|')) {
+                const parts = externalReference.split('|');
+                userId = parts[0];
+                courseId = parts[1];
+            }
+
             const customerEmail = payload['CUSTOMER_EMAIL'];
+            let targetUserId = userId;
 
-            // Find user by email if we don't have user_id in reference
-            const { data: userData } = await supabase
-                .from('users')
-                .select('id')
-                .eq('email', customerEmail)
-                .maybeSingle();
+            // If no explicit userId, try to find by email
+            if (!targetUserId) {
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('email', customerEmail)
+                    .maybeSingle();
+                if (userData) targetUserId = userData.id;
+            }
 
-            if (userData && courseId) {
+            console.log(`[Webhook] Processing purchase for User: ${targetUserId}, Course: ${courseId}`);
+
+            if (targetUserId && courseId) {
                 // Record the purchase
                 const { error: purchaseError } = await supabase
                     .from('purchases')
                     .insert({
-                        user_id: userData.id,
+                        user_id: targetUserId,
                         course_id: courseId,
                         amount: Number(payload['TOTAL_PRICE']),
                         currency: payload['CURRENCY'],
